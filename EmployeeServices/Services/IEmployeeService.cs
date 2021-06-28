@@ -7,7 +7,7 @@ namespace EmployeeServices.Services
 {
     public interface IEmployeeService
     {
-        IEnumerable<Employee> GetAllEmployees();
+        List<Employee> GetAllEmployees();
         Employee Add(Employee newEmp);
         Guid Remove(Guid id);
     }

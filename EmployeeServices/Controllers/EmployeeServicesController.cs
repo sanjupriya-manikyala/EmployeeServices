@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EmployeeServices.Model;
 using EmployeeServices.Services;
 
@@ -22,7 +19,7 @@ namespace EmployeeServices.Controllers
 
         // GET api/employeeslist
         [HttpGet]
-        public ActionResult<IEnumerable<Employee>> Get()
+        public ActionResult<List<Employee>> Get()
         {
             var employees = _service.GetAllEmployees();
             return Ok(employees);
@@ -46,7 +43,6 @@ namespace EmployeeServices.Controllers
         public ActionResult<Guid> Remove(Guid id)
         {
             _service.Remove(id);
-            //_logger.LogInformation("products", _products);
             return id;
         }
     }

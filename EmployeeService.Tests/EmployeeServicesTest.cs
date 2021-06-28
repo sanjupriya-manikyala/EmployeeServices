@@ -1,36 +1,47 @@
 using System;
 using Xunit;
-using EmployeeService.Tests;
-using Moq;
 using EmployeeServices.Model;
-using EmployeeServices.Services;
 using EmployeeServices.Controllers;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using EmployeeServices.Services;
 
 namespace EmployeeService.Tests
 {
     public class EmployeeServicesTest
     {
         private readonly EmployeeServicesController _employeeController;
-        
-        [Fact]
-        public void Get_WhenCalled_ReturnsOkResult()
+        private Mock<IEmployeeService> _mockEmployeesList;
+
+        public EmployeeServicesTest()
         {
-            // Act
-            var okResult = _employeeController.Get();
-            // Assert
-            Assert.IsType<OkObjectResult>(okResult.Result);
+            _mockEmployeesList = new Mock<IEmployeeService>();
+            _employeeController = new EmployeeServicesController(_mockEmployeesList.Object);
         }
+
         [Fact]
-        public void Get_WhenCalled_ReturnsAllItems()
+        public void GetTest_ReturnsListofEmployees()
         {
-            // Act
-            var okResult = _employeeController.Get().Result as OkObjectResult;
-            // Assert
-            var employees = Assert.IsType<List<Employee>>(okResult.Value);
-            Assert.Equal(3, employees.Count);
+           
+            var result = _employeeController.Get();
+            Assert.IsAssignableFrom<ActionResult<List<Employee>>>(result);
+
+
         }
+
+        [Fact]
+        public void Get_ActionExecutes_ReturnsExactNumberOfEmployees()
+        {
+            _mockEmployeesList.Setup(repo => repo.GetAllEmployees())
+               .Returns(new List<Employee>() { new Employee(), new Employee() });
+            var result = _employeeController.Get();
+            var viewResult = Assert.IsAssignableFrom<ActionResult<List<Employee>>>(result);
+            var employees = Assert.IsType<List<Employee>>(viewResult.Value);
+            Assert.Equal(2, employees.Count);
+        }
+
+
     }
 
 }

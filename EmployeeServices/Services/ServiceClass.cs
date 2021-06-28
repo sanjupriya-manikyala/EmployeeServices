@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EmployeeServices.Model;
 
 namespace EmployeeServices.Services
 {
     public class ServiceClass : IEmployeeService
     {
-
+        private List<Employee> _employeedetails;
 
         public Employee Add(Employee newEmp)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Employee> GetAllEmployees()
+        public List<Employee> GetAllEmployees()
         {
-            throw new NotImplementedException();
+            return _employeedetails;
         }
 
         public Guid Remove(Guid id)
