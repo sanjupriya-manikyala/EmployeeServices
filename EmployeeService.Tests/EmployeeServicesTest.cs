@@ -50,19 +50,25 @@ namespace EmployeeService.Tests
             Assert.Equal(2, 2);
         }
 
-        [Theory]
-        [AutoData]
-        public void Add_ReturnsNewEmployeeDetails(Employee emp)
+        [Fact]
+        public void Add_WhenValidParametersProvided_ReturnsNewEmployeeDetails()
         {
 
-            //arrange
-            var sut = new ServiceClass();
+            //Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            
+            var employee = fixture.Create<Employee>();    
+            var expectedResponse = fixture.Create<Employee>();
 
-            //act
-            sut.Add(emp);
+            _employeeController.Post(employee);
 
-            //assert
-            Assert.NotNull(sut); 
+            //Act
+            var result = _employeeController.Post(employee) as CreatedAtActionResult;
+            var value = result.Value as Employee;
+
+            //Assert
+            Assert.IsType<CreatedAtActionResult>(result);
+            Assert.Equal(expectedResponse, value);
         }
 
         [Fact]
