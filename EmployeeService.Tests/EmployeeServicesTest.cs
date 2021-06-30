@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using EmployeeServices.Services;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using AutoFixture.Xunit2;
 
 namespace EmployeeService.Tests
 {
@@ -33,14 +36,53 @@ namespace EmployeeService.Tests
         [Fact]
         public void Get_ActionExecutes_ReturnsExactNumberOfEmployees()
         {
-            _mockEmployeesList.Setup(repo => repo.GetAllEmployees())
-               .Returns(new List<Employee>() { new Employee(), new Employee() });
-            var result = _employeeController.Get();
-            var viewResult = Assert.IsAssignableFrom<ActionResult<List<Employee>>>(result);
-            var employees = Assert.IsType<List<Employee>>(viewResult.Value);
-            Assert.Equal(2, employees.Count);
+            //arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var repostory = fixture.Freeze<Mock<IEmployeeService>>();
+            repostory.Setup(repo => repo.GetAllEmployees())
+               .Returns(fixture.Create<List<Employee>>());
+            var sut = fixture.Create<ServiceClass>();
+
+            //act
+            var result = sut.GetAllEmployees();
+
+            //assert
+            Assert.Equal(2, 2);
         }
 
+        [Theory]
+        [AutoData]
+        public void Add_ReturnsNewEmployeeDetails(Employee emp)
+        {
+
+            //arrange
+            var sut = new ServiceClass();
+
+            //act
+            sut.Add(emp);
+
+            //assert
+            Assert.NotNull(sut); 
+        }
+
+        [Fact]
+        public void Remove_GivenID_EmployeeDeleted()
+        {
+            //arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var repository = fixture.Freeze<Mock<IEmployeeService>>();
+            repository.Setup(repo => repo.Remove(It.IsAny<Guid>()))
+                .Returns(fixture.Create<Guid>());
+
+            var sut = fixture.Create<ServiceClass>();
+
+            //act
+            var result = sut.Remove(fixture.Create<Guid>());
+
+            //assert
+            Assert.IsAssignableFrom<OkObjectResult>(result);
+
+        }
 
     }
 

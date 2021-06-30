@@ -10,7 +10,8 @@ namespace EmployeeServices.Services
 
         public Employee Add(Employee newEmp)
         {
-            throw new NotImplementedException();
+            _employeedetails.Add(newEmp);
+            return newEmp;
         }
 
         public List<Employee> GetAllEmployees()
@@ -20,7 +21,15 @@ namespace EmployeeServices.Services
 
         public Guid Remove(Guid id)
         {
-            throw new NotImplementedException();
+            for (var index = _employeedetails.Count - 1; index >= 0; index--)
+            {
+                if (_employeedetails[index].EId == id)
+                {
+                    _employeedetails.RemoveAt(index);
+                }
+            }
+
+            return id;
         }
     }
     }
