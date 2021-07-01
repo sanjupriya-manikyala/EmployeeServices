@@ -1,36 +1,71 @@
-using System;
 using Xunit;
-using EmployeeService.Tests;
-using Moq;
 using EmployeeServices.Model;
-using EmployeeServices.Services;
 using EmployeeServices.Controllers;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using EmployeeServices.Services;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using Microsoft.AspNetCore.Http;
 
 namespace EmployeeService.Tests
 {
     public class EmployeeServicesTest
     {
         private readonly EmployeeServicesController _employeeController;
-        
-        [Fact]
-        public void Get_WhenCalled_ReturnsOkResult()
+        private Mock<IEmployeeService> _mockEmployeesList;
+
+        public EmployeeServicesTest()
         {
-            // Act
-            var okResult = _employeeController.Get();
-            // Assert
-            Assert.IsType<OkObjectResult>(okResult.Result);
+            _mockEmployeesList = new Mock<IEmployeeService>();
+            _employeeController = new EmployeeServicesController(_mockEmployeesList.Object);
         }
+
         [Fact]
-        public void Get_WhenCalled_ReturnsAllItems()
+        public void Add_WhenValidParametersProvided_ReturnsNewEmployeeDetails()
         {
-            // Act
-            var okResult = _employeeController.Get().Result as OkObjectResult;
-            // Assert
-            var employees = Assert.IsType<List<Employee>>(okResult.Value);
-            Assert.Equal(3, employees.Count);
+
+            //Arrange
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var employee = fixture.Create<Employee>();
+            var expectedResponse = fixture.Create<Employee>();
+
+            _employeeController.Post(employee);
+
+            //Act
+            var result = _employeeController.Post(employee) as CreatedAtActionResult;
+            var value = result.Value as Employee;
+
+            //Assert
+            Assert.IsType<CreatedAtActionResult>(result);
+            Assert.Equal(expectedResponse, value);
         }
+
+
+        [Fact]
+        public void Add_InvalidObjectPassed_ReturnsBadRequest()
+        {
+            //Arrange
+            var fixture = new Fixture();
+            var key = fixture.Create<string>();
+            var employee = fixture.Create<Employee>();
+            var errorMessage = fixture.Create<string>();
+
+            _employeeController.ModelState.AddModelError(key, errorMessage);
+
+            //Act
+            var result = _employeeController.Post(employee);
+
+            //Assert
+            var resultType = Assert.IsType<BadRequestObjectResult>(result);
+            var modelError = _employeeController.ModelState[key];
+            Assert.NotNull(result);
+            Assert.IsType<SerializableError>(resultType.Value);
+            Assert.Equal(StatusCodes.Status400BadRequest, resultType.StatusCode);
+            Assert.Single(modelError.Errors);
+            Assert.Equal(errorMessage, modelError.Errors[0].ErrorMessage);
+        }
+
     }
 
 }
