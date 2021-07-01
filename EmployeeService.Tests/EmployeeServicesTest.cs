@@ -6,6 +6,7 @@ using Moq;
 using EmployeeServices.Services;
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Microsoft.AspNetCore.Http;
 
 namespace EmployeeService.Tests
 {
@@ -46,17 +47,23 @@ namespace EmployeeService.Tests
         {
             //Arrange
             var fixture = new Fixture();
-
+            var key = fixture.Create<string>();
             var employee = fixture.Create<Employee>();
-            //var expectedResponse = fixture.Create<Employee>();
+            var errorMessage = fixture.Create<string>();
 
-            _employeeController.BadRequest(employee);
+            _employeeController.ModelState.AddModelError(key, errorMessage);
 
             //Act
             var result = _employeeController.Post(employee);
 
             //Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            var resultType = Assert.IsType<BadRequestObjectResult>(result);
+            var modelError = _employeeController.ModelState[key];
+            Assert.NotNull(result);
+            Assert.IsType<SerializableError>(resultType.Value);
+            Assert.Equal(StatusCodes.Status400BadRequest, resultType.StatusCode);
+            Assert.Single(modelError.Errors);
+            Assert.Equal(errorMessage, modelError.Errors[0].ErrorMessage);
         }
 
     }
