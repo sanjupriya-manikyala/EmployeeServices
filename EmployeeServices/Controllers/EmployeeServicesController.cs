@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using EmployeeServices.Model;
 using EmployeeServices.Services;
 
@@ -17,14 +15,6 @@ namespace EmployeeServices.Controllers
             _service = service;
         }
 
-        // GET api/employeeslist
-        [HttpGet]
-        public ActionResult<List<Employee>> Get()
-        {
-            var employees = _service.GetAllEmployees();
-            return Ok(employees);
-        }
-
         // POST api/addemployees
         [HttpPost]
         public ActionResult Post([FromBody] Employee value)
@@ -38,13 +28,6 @@ namespace EmployeeServices.Controllers
             return CreatedAtAction("Get", new { id = employee.EId }, employee);
         }
 
-        // DELETE api/removeemployee/5
-        [HttpDelete("{id}")]
-        public ActionResult<Guid> Remove(Guid id)
-        {
-            _service.Remove(id);
-            return id;
-        }
     }
     }
 
